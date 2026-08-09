@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>الطقس الآن</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+
+      color: white;
+
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+
+      transition: background 1s ease;
+    }
+
+    /* حالات الطقس */
+
+    body.sunny {
+      background:
+        radial-gradient(circle at 80% 10%, #fde68a, transparent 25%),
+        linear-gradient(135deg, #38bdf8, #2563eb);
+    }
+
+    body.cloudy {
+      background:
+        linear-gradient(135deg, #94a3b8, #64748b, #334155);
+    }
+
+    body.rainy {
+      background:
+        linear-gradient(135deg, #64748b, #475569, #1e293b);
+    }
+
+    body.storm {
+      background:
+        linear-gradient(135deg, #312e81, #1e1b4b, #111827);
+    }
+
+    body.snow {
+      background:
+        linear-gradient(135deg, #dbeafe, #93c5fd, #475569);
+    }
+
+    body.fog {
+      background:
+        linear-gradient(135deg, #cbd5e1, #94a3b8, #475569);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 470px;
+    }
+
+    .weather-card {
+      padding: 28px;
+      border-radius: 32px;
+
+      background: rgba(255, 255, 255, 0.13);
+
+      border: 1px solid rgba(255, 255, 255, 0.25);
+
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.25);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      font-size: 34px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    /* البحث */
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      flex: 1;
+
+      height: 55px;
+
+      padding: 0 18px;
+
+      border: none;
+      outline: none;
+
+      border-radius: 17px;
+
+      background: white;
+      color: #111827;
+
+      font-size: 16px;
+    }
+
+    .search-box button {
+      width: 58px;
+      height: 55px;
+
+      border: none;
+      border-radius: 17px;
+
+      background: #2563eb;
+      color: white;
+
+      font-size: 21px;
+
+      cursor: pointer;
+
+      transition: 0.25s;
+    }
+
+    .search-box button:hover {
+      transform: translateY(-3px);
+      background: #1d4ed8;
+    }
+
+    .search-box button:active {
+      transform: scale(0.95);
+    }
+
+    /* الموقع */
+
+    .location {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .location h2 {
+      font-size: 32px;
+    }
+
+    .location p {
+      margin-top: 6px;
+
+      color: rgba(255, 255, 255, 0.7);
+
+      font-size: 14px;
+    }
+
+    /* الطقس */
+
+    .weather-main {
+      text-align: center;
+      padding: 15px 0 25px;
+    }
+
+    .weather-icon {
+      font-size: 90px;
+      margin: 15px 0;
+
+      animation: floating 3s ease-in-out infinite;
+
+      filter:
+        drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+    }
+
+    @keyframes floating {
+      0% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    .temperature {
+      font-size: 76px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .temperature span {
+      font-size: 27px;
+      vertical-align: top;
+    }
+
+    .description {
+      margin-top: 15px;
+
+      font-size: 19px;
+
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* المعلومات */
+
+    .info-grid {
+      display: grid;
+
+      grid-template-columns: repeat(2, 1fr);
+
+      gap: 12px;
+    }
+
+    .info-card {
+      min-height: 105px;
+
+      padding: 17px;
+
+      border-radius: 20px;
+
+      background:
+        rgba(255, 255, 255, 0.1);
+
+      border:
+        1px solid rgba(255, 255, 255, 0.13);
+
+      transition: 0.25s;
+    }
+
+    .info-card:hover {
+      transform: translateY(-3px);
+
+      background:
+        rgba(255, 255, 255, 0.17);
+    }
+
+    .info-icon {
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .info-title {
+      font-size: 12px;
+
+      color:
+        rgba(255, 255, 255, 0.65);
+
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    /* الرسائل */
+
+    .message {
+      text-align: center;
+
+      padding: 35px 15px;
+
+      line-height: 1.8;
+
+      color:
+        rgba(255, 255, 255, 0.8);
+    }
+
+    .big-icon {
+      display: block;
+
+      font-size: 65px;
+
+      margin-bottom: 10px;
+    }
+
+    /* التحميل */
+
+    .loading {
+      text-align: center;
+      padding: 35px;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+
+      margin: 0 auto 15px;
+
+      border-radius: 50%;
+
+      border:
+        4px solid rgba(255, 255, 255, 0.2);
+
+      border-top-color: white;
+
+      animation:
+        spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* الخطأ */
+
+    .error {
+      padding: 20px;
+
+      text-align: center;
+
+      border-radius: 18px;
+
+      background:
+        rgba(239, 68, 68, 0.18);
+
+      color: #ffe4e4;
+
+      line-height: 1.8;
+    }
+
+    /* الهاتف */
+
+    @media (max-width: 500px) {
+      .weather-card {
+        padding: 22px 17px;
+        border-radius: 27px;
+      }
+
+      .header h1 {
+        font-size: 29px;
+      }
+
+      .temperature {
+        font-size: 65px;
+      }
+
+      .weather-icon {
+        font-size: 78px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+
+<body class="sunny">
+
+  <div class="app">
+
+    <div class="weather-card">
+
+      <div class="header">
+
+        <h1>
+          🌤️ الطقس الآن
+        </h1>
+
+        <p>
+          ابحث عن حالة الطقس في أي مدينة
+        </p>
+
+      </div>
+
+
+      <div class="search-box">
+
+        <input
+          id="cityInput"
+          type="text"
+          placeholder="مثال: نابلس، مكة، London..."
+          autocomplete="off"
+        >
+
+        <button
+          id="searchButton"
+          type="button"
+          title="بحث"
+        >
+          🔍
+        </button>
+
+      </div>
+
+
+      <div id="result">
+
+        <div class="message">
+
+          <span class="big-icon">
+            🌍
+          </span>
+
+          اكتب اسم مدينة للبدء
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /* ========================================
+       عناصر الصفحة
+    ======================================== */
+
+    const cityInput =
+      document.getElementById("cityInput");
+
+    const searchButton =
+      document.getElementById("searchButton");
+
+    const result =
+      document.getElementById("result");
+
+
+    /* ========================================
+       المدن المعروفة
+    ======================================== */
+
+    const knownCities = {
+
+      /* فلسطين */
+
+      "يافا": {
+        name: "يافا",
+        country: "فلسطين",
+        lat: 32.0500,
+        lon: 34.7500
+      },
+
+      "حيفا": {
+        name: "حيفا",
+        country: "فلسطين",
+        lat: 32.7940,
+        lon: 34.9896
+      },
+
+      "عكا": {
+        name: "عكا",
+        country: "فلسطين",
+        lat: 32.9272,
+        lon: 35.0818
+      },
+
+      "الناصرة": {
+        name: "الناصرة",
+        country: "فلسطين",
+        lat: 32.6996,
+        lon: 35.3035
+      },
+
+      "طبريا": {
+        name: "طبريا",
+        country: "فلسطين",
+        lat: 32.7940,
+        lon: 35.5328
+      },
+
+      "صفد": {
+        name: "صفد",
+        country: "فلسطين",
+        lat: 32.9646,
+        lon: 35.4960
+      },
+
+      "بيسان": {
+        name: "بيسان",
+        country: "فلسطين",
+        lat: 32.4973,
+        lon: 35.4973
+      },
+
+      "اللد": {
+        name: "اللد",
+        country: "فلسطين",
+        lat: 31.9514,
+        lon: 34.8880
+      },
+
+      "الرملة": {
+        name: "الرملة",
+        country: "فلسطين",
+        lat: 31.9292,
+        lon: 34.8658
+      },
+
+      "عسقلان": {
+        name: "عسقلان",
+        country: "فلسطين",
+        lat: 31.6693,
+        lon: 34.5715
+      },
+
+      "أسدود": {
+        name: "أسدود",
+        country: "فلسطين",
+        lat: 31.8014,
+        lon: 34.6435
+      },
+
+      "القدس": {
+        name: "القدس",
+        country: "فلسطين",
+        lat: 31.7683,
+        lon: 35.2137
+      },
+
+      "غزة": {
+        name: "غزة",
+        country: "فلسطين",
+        lat: 31.5017,
+        lon: 34.4668
+      },
+
+      "رفح": {
+        name: "رفح",
+        country: "فلسطين",
+        lat: 31.2969,
+        lon: 34.2436
+      },
+
+      "خان يونس": {
+        name: "خان يونس",
+        country: "فلسطين",
+        lat: 31.3462,
+        lon: 34.3060
+      },
+
+      "دير البلح": {
+        name: "دير البلح",
+        country: "فلسطين",
+        lat: 31.4175,
+        lon: 34.3508
+      },
+
+      "جباليا": {
+        name: "جباليا",
+        country: "فلسطين",
+        lat: 31.5272,
+        lon: 34.4831
+      },
+
+      "بيت لاهيا": {
+        name: "بيت لاهيا",
+        country: "فلسطين",
+        lat: 31.5467,
+        lon: 34.4958
+      },
+
+      "الخليل": {
+        name: "الخليل",
+        country: "فلسطين",
+        lat: 31.5326,
+        lon: 35.0998
+      },
+
+      "يطا": {
+        name: "يطا",
+        country: "فلسطين",
+        lat: 31.4467,
+        lon: 35.0933
+      },
+
+      "الظاهرية": {
+        name: "الظاهرية",
+        country: "فلسطين",
+        lat: 31.4097,
+        lon: 34.9761
+      },
+
+      "بيت لحم": {
+        name: "بيت لحم",
+        country: "فلسطين",
+        lat: 31.7054,
+        lon: 35.2024
+      },
+
+      "بيت جالا": {
+        name: "بيت جالا",
+        country: "فلسطين",
+        lat: 31.7150,
+        lon: 35.1878
+      },
+
+      "بيت ساحور": {
+        name: "بيت ساحور",
+        country: "فلسطين",
+        lat: 31.7049,
+        lon: 35.2269
+      },
+
+      "نابلس": {
+        name: "نابلس",
+        country: "فلسطين",
+        lat: 32.2211,
+        lon: 35.2544
+      },
+
+      "جنين": {
+        name: "جنين",
+        country: "فلسطين",
+        lat: 32.4594,
+        lon: 35.3009
+      },
+
+      "طولكرم": {
+        name: "طولكرم",
+        country: "فلسطين",
+        lat: 32.3104,
+        lon: 35.0286
+      },
+
+      "قلقيلية": {
+        name: "قلقيلية",
+        country: "فلسطين",
+        lat: 32.1897,
+        lon: 34.9706
+      },
+
+      "رام الله": {
+        name: "رام الله",
+        country: "فلسطين",
+        lat: 31.9038,
+        lon: 35.2034
+      },
+
+      "البيرة": {
+        name: "البيرة",
+        country: "فلسطين",
+        lat: 31.9100,
+        lon: 35.2160
+      },
+
+      "سلفيت": {
+        name: "سلفيت",
+        country: "فلسطين",
+        lat: 32.0836,
+        lon: 35.1808
+      },
+
+      "أريحا": {
+        name: "أريحا",
+        country: "فلسطين",
+        lat: 31.8611,
+        lon: 35.4606
+      },
+
+      "طوباس": {
+        name: "طوباس",
+        country: "فلسطين",
+        lat: 32.3214,
+        lon: 35.3699
+      },
+
+
+      /* السعودية */
+
+      "مكة": {
+        name: "مكة المكرمة",
+        country: "السعودية",
+        lat: 21.3891,
+        lon: 39.8579
+      },
+
+      "مكة المكرمة": {
+        name: "مكة المكرمة",
+        country: "السعودية",
+        lat: 21.3891,
+        lon: 39.8579
+      },
+
+      "يثرب": {
+        name: "المدينة المنورة",
+        country: "السعودية",
+        lat: 24.5247,
+        lon: 39.5692
+      },
+
+      "المدينة": {
+        name: "المدينة المنورة",
+        country: "السعودية",
+        lat: 24.5247,
+        lon: 39.5692
+      },
+
+      "المدينة المنورة": {
+        name: "المدينة المنورة",
+        country: "السعودية",
+        lat: 24.5247,
+        lon: 39.5692
+      },
+
+      "الرياض": {
+        name: "الرياض",
+        country: "السعودية",
+        lat: 24.7136,
+        lon: 46.6753
+      },
+
+      "جدة": {
+        name: "جدة",
+        country: "السعودية",
+        lat: 21.4858,
+        lon: 39.1925
+      },
+
+
+      /* الأردن */
+
+      "عمان": {
+        name: "عمّان",
+        country: "الأردن",
+        lat: 31.9539,
+        lon: 35.9106
+      },
+
+
+      /* الإمارات */
+
+      "دبي": {
+        name: "دبي",
+        country: "الإمارات",
+        lat: 25.2048,
+        lon: 55.2708
+      },
+
+      "أبو ظبي": {
+        name: "أبو ظبي",
+        country: "الإمارات",
+        lat: 24.4539,
+        lon: 54.3773
+      },
+
+
+      /* مصر */
+
+      "القاهرة": {
+        name: "القاهرة",
+        country: "مصر",
+        lat: 30.0444,
+        lon: 31.2357
+      },
+
+      "أسوان": {
+        name: "أسوان",
+        country: "مصر",
+        lat: 24.0889,
+        lon: 32.8998
+      },
+
+
+      /* سوريا */
+
+      "دمشق": {
+        name: "دمشق",
+        country: "سوريا",
+        lat: 33.5138,
+        lon: 36.2765
+      },
+
+
+      /* لبنان */
+
+      "بيروت": {
+        name: "بيروت",
+        country: "لبنان",
+        lat: 33.8938,
+        lon: 35.5018
+      },
+
+
+      /* العراق */
+
+      "بغداد": {
+        name: "بغداد",
+        country: "العراق",
+        lat: 33.3152,
+        lon: 44.3661
+      },
+
+
+      /* تركيا */
+
+      "إسطنبول": {
+        name: "إسطنبول",
+        country: "تركيا",
+        lat: 41.0082,
+        lon: 28.9784
+      },
+
+      "أنقرة": {
+        name: "أنقرة",
+        country: "تركيا",
+        lat: 39.9334,
+        lon: 32.8597
+      },
+
+
+      /* أوروبا */
+
+      "لندن": {
+        name: "لندن",
+        country: "المملكة المتحدة",
+        lat: 51.5074,
+        lon: -0.1278
+      },
+
+      "باريس": {
+        name: "باريس",
+        country: "فرنسا",
+        lat: 48.8566,
+        lon: 2.3522
+      },
+
+      "برلين": {
+        name: "برلين",
+        country: "ألمانيا",
+        lat: 52.5200,
+        lon: 13.4050
+      },
+
+      "روما": {
+        name: "روما",
+        country: "إيطاليا",
+        lat: 41.9028,
+        lon: 12.4964
+      },
+
+      "مدريد": {
+        name: "مدريد",
+        country: "إسبانيا",
+        lat: 40.4168,
+        lon: -3.7038
+      },
+
+
+      /* أمريكا */
+
+      "نيويورك": {
+        name: "نيويورك",
+        country: "الولايات المتحدة",
+        lat: 40.7128,
+        lon: -74.0060
+      },
+
+      "لوس أنجلوس": {
+        name: "لوس أنجلوس",
+        country: "الولايات المتحدة",
+        lat: 34.0522,
+        lon: -118.2437
+      },
+
+      "شيكاغو": {
+        name: "شيكاغو",
+        country: "الولايات المتحدة",
+        lat: 41.8781,
+        lon: -87.6298
+      },
+
+
+      /* آسيا */
+
+      "طوكيو": {
+        name: "طوكيو",
+        country: "اليابان",
+        lat: 35.6762,
+        lon: 139.6503
+      },
+
+      "سيول": {
+        name: "سيول",
+        country: "كوريا الجنوبية",
+        lat: 37.5665,
+        lon: 126.9780
+      },
+
+      "بكين": {
+        name: "بكين",
+        country: "الصين",
+        lat: 39.9042,
+        lon: 116.4074
+      },
+
+      "موسكو": {
+        name: "موسكو",
+        country: "روسيا",
+        lat: 55.7558,
+        lon: 37.6173
+      },
+
+      "سنغافورة": {
+        name: "سنغافورة",
+        country: "سنغافورة",
+        lat: 1.3521,
+        lon: 103.8198
+      },
+
+      "مومباي": {
+        name: "مومباي",
+        country: "الهند",
+        lat: 19.0760,
+        lon: 72.8777
+      },
+
+
+      /* أستراليا */
+
+      "سيدني": {
+        name: "سيدني",
+        country: "أستراليا",
+        lat: -33.8688,
+        lon: 151.2093
+      },
+
+      "ملبورن": {
+        name: "ملبورن",
+        country: "أستراليا",
+        lat: -37.8136,
+        lon: 144.9631
+      }
+
+    };
+
+
+    /* ========================================
+       أسماء إنجليزية
+    ======================================== */
+
+    const aliases = {
+
+      "mecca": "مكة",
+      "makkah": "مكة",
+
+      "medina": "المدينة",
+      "madinah": "المدينة",
+
+      "nablus": "نابلس",
+      "ramallah": "رام الله",
+      "gaza": "غزة",
+      "hebron": "الخليل",
+      "jerusalem": "القدس",
+
+      "jaffa": "يافا",
+      "jaffa": "يافا",
+
+      "haifa": "حيفا",
+
+      "acre": "عكا",
+      "akka": "عكا",
+      "akko": "عكا",
+
+      "nazareth": "الناصرة",
+
+      "tiberias": "طبريا",
+
+      "safed": "صفد",
+
+      "bethlehem": "بيت لحم",
+
+      "jenin": "جنين",
+
+      "tulkarm": "طولكرم",
+
+      "qalqilya": "قلقيلية",
+
+      "jericho": "أريحا",
+
+      "rafah": "رفح",
+
+      "khan younis": "خان يونس",
+
+      "riyadh": "الرياض",
+      "jeddah": "جدة",
+
+      "dubai": "دبي",
+      "abu dhabi": "أبو ظبي",
+
+      "cairo": "القاهرة",
+
+      "aswan": "أسوان",
+
+      "amman": "عمان",
+
+      "damascus": "دمشق",
+
+      "beirut": "بيروت",
+
+      "baghdad": "بغداد",
+
+      "istanbul": "إسطنبول",
+      "ankara": "أنقرة",
+
+      "london": "لندن",
+      "paris": "باريس",
+      "berlin": "برلين",
+      "rome": "روما",
+      "madrid": "مدريد",
+
+      "new york": "نيويورك",
+      "los angeles": "لوس أنجلوس",
+      "chicago": "شيكاغو",
+
+      "tokyo": "طوكيو",
+      "seoul": "سيول",
+      "beijing": "بكين",
+      "moscow": "موسكو",
+      "singapore": "سنغافورة",
+      "mumbai": "مومباي",
+
+      "sydney": "سيدني",
+      "melbourne": "ملبورن"
+
+    };
+
+
+    /* ========================================
+       توحيد البحث العربي
+    ======================================== */
+
+function normalizeArabic(text) {
+  return text
+    .normalize("NFKD")
+    .toLowerCase()
+    .trim()
+
+    // إزالة التشكيل
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+
+    // جميع أشكال الألف
+    .replace(/[أإآٱٲٳٵ]/g, "ا")
+
+    // أشكال الهمزة
+    .replace(/[ؤئ]/g, "ء")
+
+    // الألف المقصورة
+    .replace(/ى/g, "ي")
+
+    // التاء المربوطة
+    .replace(/ة/g, "ه")
+
+    // توحيد المسافات
+    .replace(/\s+/g, " ");
+
+}
+
+
+    /* ========================================
+       العثور على مدينة معروفة
+    ======================================== */
+
+    function findKnownCity(cityName) {
+
+      const normalized =
+        normalizeArabic(cityName);
+
+      for (const key in knownCities) {
+
+        if (
+          normalizeArabic(key) === normalized
+        ) {
+
+          return knownCities[key];
+
+        }
+
+      }
+
+      return null;
+    }
+
+
+    /* ========================================
+       البحث
+    ======================================== */
+
+    async function searchWeather() {
+
+      let input =
+        cityInput.value.trim();
+
+
+      if (!input) {
+
+        result.innerHTML = `
+          <div class="error">
+            ⚠️ اكتب اسم المدينة أولًا
+          </div>
+        `;
+
+        return;
+      }
+
+
+      showLoading();
+
+
+      try {
+
+        /*
+          السماح بكتابة:
+          مكة
+          مكة، السعودية
+          Mecca
+        */
+
+        input =
+          input
+            .replace(/،/g, ",")
+            .trim();
+
+
+        const parts =
+          input
+            .split(",")
+            .map(
+              item => item.trim()
+            );
+
+
+        let cityName =
+          parts[0];
+
+
+        /*
+          تحويل الاسم الإنجليزي
+          إلى الاسم المعروف
+        */
+
+        const lowerName =
+          cityName.toLowerCase();
+
+
+        if (
+          aliases[lowerName]
+        ) {
+
+          cityName =
+            aliases[lowerName];
+
+        }
+
+
+        /*
+          البحث في القائمة المحلية
+        */
+
+        const known =
+          findKnownCity(cityName);
+
+
+        if (known) {
+
+          await displayWeather(
+
+            known.lat,
+
+            known.lon,
+
+            known.name,
+
+            known.country
+
+          );
+
+          return;
+        }
+
+
+        /*
+          إذا لم تكن المدينة
+          في القائمة، استخدم API
+        */
+
+        await searchWithAPI(cityName);
+
+      } catch (error) {
+
+        console.error(error);
+
+        showError();
+
+      }
+
+    }
+
+
+    /* ========================================
+       البحث العالمي
+    ======================================== */
+
+    async function searchWithAPI(city) {
+
+      const url =
+        "https://geocoding-api.open-meteo.com/v1/search" +
+        "?name=" +
+        encodeURIComponent(city) +
+        "&count=10" +
+        "&language=ar" +
+        "&format=json";
+
+
+      const response =
+        await fetch(url);
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Geocoding failed"
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !data.results ||
+        data.results.length === 0
+      ) {
+
+        result.innerHTML = `
+          <div class="error">
+
+            ❌ لم يتم العثور على المدينة
+
+            <br><br>
+
+            جرّب كتابة اسمها
+            بطريقة مختلفة.
+
+          </div>
+        `;
+
+        return;
+      }
+
+
+      /*
+        اختيار نتيجة مناسبة
+      */
+
+      let location =
+        data.results.find(
+          item =>
+            item.feature_code &&
+            item.feature_code.startsWith("P")
+        );
+
+
+      if (!location) {
+
+        location =
+          data.results[0];
+
+      }
+
+
+      await displayWeather(
+
+        location.latitude,
+
+        location.longitude,
+
+        location.name,
+
+        location.country || "غير معروف"
+
+      );
+
+    }
+
+
+    /* ========================================
+       عرض الطقس
+    ======================================== */
+
+    async function displayWeather(
+      latitude,
+      longitude,
+      city,
+      country
+    ) {
+
+      const url =
+        "https://api.open-meteo.com/v1/forecast" +
+
+        "?latitude=" +
+        latitude +
+
+        "&longitude=" +
+        longitude +
+
+        "&current=" +
+        "temperature_2m," +
+        "relative_humidity_2m," +
+        "apparent_temperature," +
+        "weather_code," +
+        "wind_speed_10m" +
+
+        "&timezone=auto";
+
+
+      const response =
+        await fetch(url);
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Weather API failed"
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      const current =
+        data.current;
+
+
+      const temperature =
+        Math.round(
+          current.temperature_2m
+        );
+
+
+      const feelsLike =
+        Math.round(
+          current.apparent_temperature
+        );
+
+
+      const humidity =
+        current.relative_humidity_2m;
+
+
+      const wind =
+        Math.round(
+          current.wind_speed_10m
+        );
+
+
+      const weather =
+        getWeatherInfo(
+          current.weather_code
+        );
+
+
+      changeTheme(
+        weather.theme
+      );
+
+
+      result.innerHTML = `
+
+        <div class="location">
+
+          <h2>
+            ${escapeHTML(city)}
+          </h2>
+
+          <p>
+            📍 ${escapeHTML(country)}
+          </p>
+
+        </div>
+
+
+        <div class="weather-main">
+
+          <div class="weather-icon">
+            ${weather.icon}
+          </div>
+
+          <div class="temperature">
+
+            ${temperature}
+
+            <span>
+              °C
+            </span>
+
+          </div>
+
+          <div class="description">
+            ${weather.text}
+          </div>
+
+        </div>
+
+
+        <div class="info-grid">
+
+
+          <div class="info-card">
+
+            <div class="info-icon">
+              🌡️
+            </div>
+
+            <div class="info-title">
+              الحرارة المحسوسة
+            </div>
+
+            <div class="info-value">
+              ${feelsLike}°C
+            </div>
+
+          </div>
+
+
+          <div class="info-card">
+
+            <div class="info-icon">
+              💧
+            </div>
+
+            <div class="info-title">
+              الرطوبة
+            </div>
+
+            <div class="info-value">
+              ${humidity}%
+            </div>
+
+          </div>
+
+
+          <div class="info-card">
+
+            <div class="info-icon">
+              💨
+            </div>
+
+            <div class="info-title">
+              سرعة الرياح
+            </div>
+
+            <div class="info-value">
+              ${wind} km/h
+            </div>
+
+          </div>
+
+
+          <div class="info-card">
+
+            <div class="info-icon">
+              📍
+            </div>
+
+            <div class="info-title">
+              الإحداثيات
+            </div>
+
+            <div class="info-value">
+              ${latitude.toFixed(2)},
+              ${longitude.toFixed(2)}
+            </div>
+
+          </div>
+
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* ========================================
+       وصف حالة الطقس
+    ======================================== */
+
+    function getWeatherInfo(code) {
+
+      if (code === 0) {
+
+        return {
+          icon: "☀️",
+          text: "سماء صافية",
+          theme: "sunny"
+        };
+
+      }
+
+
+      if (
+        code === 1 ||
+        code === 2
+      ) {
+
+        return {
+          icon: "🌤️",
+          text: "غائم جزئيًا",
+          theme: "cloudy"
+        };
+
+      }
+
+
+      if (code === 3) {
+
+        return {
+          icon: "☁️",
+          text: "غائم",
+          theme: "cloudy"
+        };
+
+      }
+
+
+      if (
+        code === 45 ||
+        code === 48
+      ) {
+
+        return {
+          icon: "🌫️",
+          text: "ضباب",
+          theme: "fog"
+        };
+
+      }
+
+
+      if (
+        code >= 51 &&
+        code <= 67
+      ) {
+
+        return {
+          icon: "🌧️",
+          text: "أجواء ممطرة",
+          theme: "rainy"
+        };
+
+      }
+
+
+      if (
+        code >= 71 &&
+        code <= 77
+      ) {
+
+        return {
+          icon: "❄️",
+          text: "أجواء ثلجية",
+          theme: "snow"
+        };
+
+      }
+
+
+      if (
+        code >= 80 &&
+        code <= 82
+      ) {
+
+        return {
+          icon: "🌧️",
+          text: "زخات مطر",
+          theme: "rainy"
+        };
+
+      }
+
+
+      if (code >= 95) {
+
+        return {
+          icon: "⛈️",
+          text: "عاصفة رعدية",
+          theme: "storm"
+        };
+
+      }
+
+
+      return {
+        icon: "🌤️",
+        text: "حالة جوية غير معروفة",
+        theme: "cloudy"
+      };
+
+    }
+
+
+    /* ========================================
+       تغيير لون الصفحة
+    ======================================== */
+
+    function changeTheme(theme) {
+
+      document.body.classList.remove(
+        "sunny",
+        "cloudy",
+        "rainy",
+        "storm",
+        "snow",
+        "fog"
+      );
+
+
+      document.body.classList.add(theme);
+
+    }
+
+
+    /* ========================================
+       شاشة التحميل
+    ======================================== */
+
+    function showLoading() {
+
+      result.innerHTML = `
+
+        <div class="loading">
+
+          <div class="spinner"></div>
+
+          جاري البحث عن الطقس...
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* ========================================
+       رسالة الخطأ
+    ======================================== */
+
+    function showError() {
+
+      result.innerHTML = `
+
+        <div class="error">
+
+          ❌ حدث خطأ في الاتصال بالخادم
+
+          <br><br>
+
+          تأكد من اتصال الإنترنت
+          وحاول مرة أخرى.
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* ========================================
+       حماية النصوص المعروضة
+    ======================================== */
+
+    function escapeHTML(text) {
+
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    /* ========================================
+       زر البحث
+    ======================================== */
+
+    searchButton.addEventListener(
+      "click",
+      searchWeather
+    );
+
+
+    /* ========================================
+       البحث بزر ENTER
+    ======================================== */
+
+    cityInput.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (event.key === "Enter") {
+
+          event.preventDefault();
+
+          searchWeather();
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
